@@ -1,0 +1,193 @@
+---
+title: "classification of Breast cancer using KNN"
+author: "Mr. Kelvin O"
+date: "2026-01-23"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+#import the data set
+```{r}
+bc<-read.csv("wisc_bc_data.csv",stringsAsFactors = F)
+head(bc,6)
+View(bc)
+```
+
+#checking the structure of the data frame
+```{r}
+str(bc)
+#checking the unique labels of diagnosis
+unique(bc$diagnosis)
+
+#get the table of diagnosis
+table(bc$diagnosis)
+
+#drop unique id or the id feature
+bc<-bc[-1]
+
+View(bc)
+```
+
+#recode diagnosis as a factor
+```{r}
+bc$diagnosis<-factor(bc$diagnosis,levels = c("B","M"),labels = c("Benign","Malignant"))
+
+#to get the frequency or proportions of the diagnosis labels
+round(prop.table(table(bc$diagnosis))*100, digits = 1)
+
+```
+
+#summarizing  numeric variables
+```{r}
+summary(bc[-1])
+```
+#create a normalization function
+```{r}
+normalize<-function(x){
+  return((x-min(x))/(max(x)-min(x)))
+}
+#test the function 
+normalize(c(1,2,3,4,5))
+normalize(c(10,20,30,40,50))
+```
+
+#normalize the data
+```{r}
+bc_n<-as.data.frame(lapply(bc[2:31],normalize))
+summary(bc_n$area_mean)
+```
+
+#create training and test data 
+```{r}
+bc_train<-bc_n[1:427,]
+bc_test<-bc_n[428:569,]
+
+#create labels for training and test data
+bc_train_labels<-bc[1:427,1]
+bc_test_labels<-bc[428:569,1]
+
+```
+
+
+```{r}
+#install.packages("class")
+library(class)
+```
+
+
+```{r}
+bc_test_pred<-knn(train=bc_train,test= bc_test,
+                  cl=bc_train_labels,k=20)
+summary (bc_test_pred)
+```
+
+#Evaluation model performance
+#use the gmodels library
+```{r}
+library(gmodels)
+```
+
+
+```{r}
+CrossTable(x=bc_test_labels,y=bc_test_pred,
+           prop.chisq=F)
+```
+
+#improve model performance
+```{r}
+#using the scale function of zscore
+bc_z<-as.data.frame(scale(bc[-1]))
+
+
+#confirm scaling on a feature
+
+summary(bc_z$area_mean)
+```
+#create training data set and test data set
+```{r}
+bc_train<-bc_z[1:427,]
+bc_test<-bc_z[428:569,]
+```
+
+#reclassify the test cases
+```{r}
+bc_test_pred1<-knn(train=bc_train,test=
+                     bc_test,cl=bc_train_labels,k=20)
+
+CrossTable(x=bc_test_labels,y=bc_test_pred1,
+           prop.chisq=F)
+```
+
+#test for k=1,5,11,15 and report on the best k, and give a report on the best k
+```{r}
+```
+
+#Test for K=1
+```{r}
+bc_test_pred1<-knn(train=bc_train,test=
+                     bc_test,cl=bc_train_labels,k=1)
+
+CrossTable(x=bc_test_labels,y=bc_test_pred1,
+           prop.chisq=F)
+```
+
+#Testing for K=5
+```{r}
+bc_test_pred1<-knn(train=bc_train,test=
+                     bc_test,cl=bc_train_labels,k=5)
+
+CrossTable(x=bc_test_labels,y=bc_test_pred1,
+           prop.chisq=F)
+```
+
+#Testing for K=11
+```{r}
+bc_test_pred1<-knn(train=bc_train,test=
+                     bc_test,cl=bc_train_labels,k=11)
+
+CrossTable(x=bc_test_labels,y=bc_test_pred1,
+           prop.chisq=F)
+```
+
+#Testing for K=15
+```{r}
+bc_test_pred1<-knn(train=bc_train,test=
+                     bc_test,cl=bc_train_labels,k=15)
+
+CrossTable(x=bc_test_labels,y=bc_test_pred1,
+           prop.chisq=F)
+```
+
+
+```{r}
+```
+#REPORT
+Based on the test conducted using K=20,K=1,K=5,K=11 and K=15, The result shows that the error rate using K=15 is relatively minimal, with only 2 malignant error cases while testing for Benign cases.
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
+
+```{r}
+```
+
